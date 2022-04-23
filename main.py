@@ -1,124 +1,154 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# #Сюда подставляете свой токен
-
 from dash import Dash, html, dcc,Input,Output
 import meteofunc
+from multiprocessing import Process
 
-
-field = 't2m'
-model = 'cm01msk'
 exp = 'oper'
 basePeriod = 'obs'
-time = '2021020100-2021022821'
-term = '0'
-region = '125_ETR+'
-stat = 'rmse_05'
-source = 'Blinov'
-
-stat1 = []
-model1 = []
-field1 = []
-region1 = []
-term1 = []
-
-stat_c = 0
-model_c = 0
-field_c = 0
-region_c = 0
-term_c = 0
-
-field_m,stat_m,model_m,basePeriod_m, region_m, term_m = meteofunc.create_data()
-
 
 app = Dash(__name__)
 
-app.layout = html.Div([
-    html.Div([
+stat = []
+model = []
+field = []
+region = []
+term = []
+source = []
+timeperiod = []
 
-        html.Button('Submit', id='submit-val', n_clicks=0),
-        html.Div(id='container-button-basic',
-             children='Enter a value and press submit'),
+exp_m = []
+field_m =[]
+stat_m =[]
+model_m =[]
+basePeriod_m =[] 
+region_m =[]
+term_m =[]
+timeperiod_m =[]
+source_m = []
 
-        html.Div(children=[
-            html.Label('Stat'),
-            dcc.Dropdown(stat_m,  id='stat_id',multi = True)]),
-            html.Div(id='dd-output-container'),
-        
-        html.Div(children=[
-            html.Label('Model'),
-            dcc.Dropdown(model_m,  id='model_id',multi = True)]),
-            html.Div(id='dd-output-container1'),
+def set_layout():
+    app.layout = html.Div([
+        html.Div([
+            dcc.RadioItems(['Lead time','Time period'],"Lead time"),
+            
+            html.Button('Submit', id='submit-val', n_clicks=0),
+            html.Hr(),
 
-        html.Div(children=[
-            html.Label('Field'),
-            dcc.Dropdown(field_m,  id='field_id',multi = True)]),
-            html.Div(id='dd-output-container2'),
+            html.Div(id='container-button-basic',
+                children='Enter a value and press submit'),
 
-        html.Div(children=[
-            html.Label('Region'),
-            dcc.Dropdown(region_m, id='region_id',multi = True)]),
-            html.Div(id='dd-output-container3'),
+            html.Div(children=[
+                html.Label('Model'),
+                dcc.Dropdown(model_m,  id='model_id',multi = True)]),
+                html.Div(id='dd-output-container1'),
+            
+            html.Div(children=[
+                html.Label('Field'),
+                dcc.Dropdown(field_m,  id='field_id',multi = True)]),
+                html.Div(id='dd-output-container2'),
+
+            html.Div(children=[
+                html.Label('Term'),
+                dcc.Dropdown(term_m, id='term_id',multi = True)]),
+                html.Div(id='dd-output-container4'),
+
+            html.Div(children=[
+                html.Label('Region'),
+                dcc.Dropdown(region_m, id='region_id',multi = True)]),
+                html.Div(id='dd-output-container3'),
+
+            html.Div(children=[
+                html.Label('Time Period'),
+                dcc.Dropdown(timeperiod_m,  id='timeperiod_id',multi = True)]),
+                html.Div(id='dd-output-container5'),
+
+            html.Div(children=[
+                html.Label('Stat'),
+                dcc.Dropdown(stat_m,  id='stat_id',multi = True)]),
+                html.Div(id='dd-output-container'),
+
+            html.Div(children=[
+                html.Label('Source'),
+                dcc.Dropdown(source_m, id='source_id',multi = True)]),
+                html.Div(id='dd-output-container6'),
+
+            html.Div(children=[
+                html.Label('Experiment'),
+                dcc.Dropdown(exp_m, id='exp_id',multi = True)]),
+                html.Div(id='dd-output-container7'),
+            
+            html.Div([ dcc.Graph(id = "graph"),
+
+        ], style={'padding': 10, 'flex': 1}),    
+        ],style={'width': '100%', 'display': 'inline-block'}),
+
+    ], style={'display': 'flex'})
 
 
-        html.Div(children=[
-            html.Label('Term'),
-            dcc.Dropdown(term_m, id='term_id',multi = True)]),
-            html.Div(id='dd-output-container4'),
+@app.callback(
+    Output('dd-output-container7', 'children'),
+    Input('exp_id', 'value')
+)
+def set_source(exp_id):
+    global exp
+    exp = exp_id
 
-
-        html.Div([ dcc.Graph(id = "graph"),
-
-    ], style={'padding': 10, 'flex': 1}),    
-    ],style={'width': '100%', 'display': 'inline-block'}),
-
-], style={'display': 'flex'})
-
+@app.callback(
+    Output('dd-output-container6', 'children'),
+    Input('source_id', 'value')
+)
+def set_source(source_id):
+    global source
+    source = source_id
 
 @app.callback(
     Output('dd-output-container', 'children'),
     Input('stat_id', 'value'),
 )
 def set_stat(stat_id):
-    global stat_c
-    stat1.append(stat_id[stat_c])
-    stat_c+=1
-
+    global stat
+    stat = stat_id
 @app.callback(
     Output('dd-output-container1', 'children'),
     Input('model_id', 'value'),
 )
 def set_model(model_id):
-    global model_c
-    model1.append(model_id[model_c])
-    model_c+=1
+    global model
+    model = model_id
 @app.callback(
     Output('dd-output-container2', 'children'),
     Input('field_id', 'value'),
 )
 def set_field(field_id):
-    global field_c
-    field1.append(field_id[field_c])
-    field_c+=1
+    global field
+    field = field_id
 
 @app.callback(
     Output('dd-output-container3', 'children'),
     Input('region_id', 'value'),
 )
 def set_region(region_id):
-    global region_c
-    region1.append(region_id[region_c])
-    region_c+=1
+    global region
+    region = region_id
 
 @app.callback(
     Output('dd-output-container4', 'children'),
-    Input('term_id', 'value'),
+    Input('term_id', 'value')
 )
 def set_term(term_id):
-    global term_c
-    term1.append(term_id[term_c])
-    term_c+=1
+    global term
+    term = term_id
+
+@app.callback(
+    Output('dd-output-container5', 'children'),
+    Input('timeperiod_id', 'value')
+)
+
+def set_timeperiod(timeperiod_id):
+    global timeperiod
+    timeperiod = timeperiod_id
 
 @app.callback(
     Output('graph', 'figure'),
@@ -126,17 +156,30 @@ def set_term(term_id):
 )
 
 def bb(n_clicks):
-    global stat1,field1,model1,region1,term1
-
-    # print(stat1)
-    # print(field1)
-    # print(model1)
-    # print(region1)
-    # print(term1)
-
-    fig = meteofunc.read_data(field1,model1,exp,basePeriod,time,term1,region1,stat1,source)
+    global stat,field,model,region,term,timeperiod,source,exp
+    print(stat)
+    print(field)
+    print(model)
+    print(region)
+    print(term)
+    print(timeperiod)
+    print(source)
+    print(exp)
+    if (field != None) and (timeperiod != None) and (model != None) and (term != None) and (region != None) and (stat!=None) and (source!=None) and (exp!=None):
+        fig = meteofunc.read_data(field,model,exp,basePeriod,timeperiod,term,region,stat,source)
+    else:
+        fig = meteofunc.base_data()
     return fig
+def set_values():
+    global field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m
 
-if __name__ == '__main__':
-    # app.run_server(host= '0.0.0.0',debug=False)
-    app.run_server(debug=True)
+    field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m = meteofunc.create_data()
+
+def runer():
+    set_layout()
+    app.run_server(debug=False,host = "127.0.0.1",port= "8051")
+
+def main():
+    set_values()
+    proc1 = Process(target=runer)
+    proc1.start()

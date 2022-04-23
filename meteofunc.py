@@ -4,7 +4,12 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
 
-DATA = pd.read_csv('/home/nikita/Рабочий стол/Диплом/combine_est.csv', sep=';')
+DATA = ""
+# DATA = pd.read_csv('../combine_est_t2m.csv', sep=';')
+
+def set_data(path):
+    global DATA
+    DATA = pd.read_csv(path, sep=';')
 
 def sort_field(DATA,name):
     mass = []
@@ -16,6 +21,13 @@ def sort_field(DATA,name):
         if item not in sort_m:
             sort_m.append(item)
     return sort_m
+
+def base_data():
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=np.arange(0, 10), y = np.arange(0, 10),name="base graph"))
+
+    return fig
 
 def create_data():
     
@@ -35,39 +47,63 @@ def create_data():
 
     ###############################Term######################################
     term_m = sort_field(DATA,"term")
-    print(term_m)
 
-    return field_m,stat_m,model_m,basePeriod_m, region_m, term_m
+    ###############################Time######################################
+    timeperiod_m = sort_field(DATA,"timeperiod")
 
-def read_data(field,model,exp,basePeriod,time,term,region,stat,source):
+    ###############################Source######################################
+    source_m = sort_field(DATA,"source")
+
+    ###############################Experiment######################################
+    exp_m = sort_field(DATA,"experiment")
+
+    return field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m
+
+def read_data(field,model,exp,basePeriod,timeperiod,term,region,stat,source):
 
     data1 = [[]]
+    name1 = []
 
-    i = 0
+    lead_time_name = []
+    lt = []
+    param_name = []
+    
+    for i in DATA.columns:
+        try:
+            x = int(i)
 
-    # for i in range (len(DATA)):
-    #     # for j in range(len(stat) ):
+            lead_time_name.append(i)
+            lt.append(i)
+        except ValueError:
+            param_name.append(i)
 
-    #         if DATA['stat'][i] == stat and DATA['model'][i] == model and DATA['field'][i] == field and DATA['basePeriod'][i] == basePeriod and DATA['term'][i] == term and DATA['region'][i] == region:
-    #             data1.append([DATA['00'][i],DATA['03'][i],DATA['06'][i],DATA['09'][i],
-    #             DATA['12'][i],DATA['15'][i],DATA['18'][i],DATA['21'][i],DATA['24'][i],
-    #             DATA['27'][i],DATA['30'][i],DATA['33'][i],DATA['36'][i],DATA['39'][i],
-    #             DATA['42'][i],DATA['45'][i],DATA['48'][i]])
-    # data1.pop(0)
+    for i in lt:
+        if(np.isnan(DATA[i][0])):
+            lead_time_name.remove(i)
 
-    print("Go")
     for i in range(len(DATA)):
-        if (DATA['stat'][i] in stat) and (DATA['model'][i] in model) and (DATA['field'][i] in field) and (DATA['basePeriod'][i] in basePeriod) and (DATA['term'][i] in term) and (DATA['region'][i] in region):
-            data1.append([DATA['00'][i],DATA['03'][i],DATA['06'][i],DATA['09'][i],
-            DATA['12'][i],DATA['15'][i],DATA['18'][i],DATA['21'][i],DATA['24'][i],
-            DATA['27'][i],DATA['30'][i],DATA['33'][i],DATA['36'][i],DATA['39'][i],
-            DATA['42'][i],DATA['45'][i],DATA['48'][i]])
-            print("done")
+        if (DATA['stat'][i] in stat) and (DATA['model'][i] in model) and (DATA['field'][i] in field) and (DATA['basePeriod'][i] in basePeriod) and (DATA['term'][i] in term) and (DATA['region'][i] in region) and (DATA['timeperiod'][i] in timeperiod) and (DATA['source'][i] in source) and (DATA['experiment'][i] in exp):
+            time_data = []
+
+            for j in lead_time_name:
+                time_data.append(DATA[j][i])
+            data1.append(time_data)
+
+            name1.append(
+            str(DATA['stat'][i])+" "+
+            str(DATA['model'][i])+" "+
+            str(DATA['field'][i])+" "+
+            str(DATA['basePeriod'][i])+" "+
+            str(DATA['term'][i])+" "+
+            str(DATA['region'][i])+" "+
+            str(DATA['timeperiod'][i])+" "+
+            str(DATA['source'][i])+" "+
+            str(DATA['experiment'][i])
+            )
+
     data1.pop(0)
-
     fig = go.Figure()
-
     for i in range (len(data1)):
-        fig.add_trace(go.Scatter(x=np.arange(0, len(data1[i])), y = data1[i],name=str(i)))
+        fig.add_trace(go.Scatter(x=np.arange(0, len(data1[i])), y = data1[i],name=name1[i]))
     fig.write_image("img.png")
     return fig
