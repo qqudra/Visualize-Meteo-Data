@@ -22,13 +22,15 @@ exp_m = []
 field_m =[]
 stat_m =[]
 model_m =[]
-basePeriod_m =[] 
+basePeriod_m =[]
 region_m =[]
 term_m =[]
 timeperiod_m =[]
 source_m = []
 
-def set_layout():
+def set_layout(field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m):
+    print(field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m)
+
     app.layout = html.Div([
         html.Div([
             dcc.RadioItems(['Lead time','Time period'],"Lead time"),
@@ -156,7 +158,7 @@ def set_timeperiod(timeperiod_id):
 )
 
 def bb(n_clicks):
-    global stat,field,model,region,term,timeperiod,source,exp
+    # global stat,field,model,region,term,timeperiod,source,exp
     print(stat)
     print(field)
     print(model)
@@ -174,12 +176,15 @@ def set_values():
     global field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m
 
     field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m = meteofunc.create_data()
+def runer(field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m,path):
+    meteofunc.set_data(path)
 
-def runer():
-    set_layout()
-    app.run_server(debug=False,host = "127.0.0.1",port= "8051")
+    set_layout(field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m)
+    app.run_server(debug=False,host = "0.0.0.0",port= "8051")
 
-def main():
+def main(path):
+    meteofunc.set_data(path)
     set_values()
-    proc1 = Process(target=runer)
+
+    proc1 = Process(target=runer, args = (field_m,stat_m,model_m,basePeriod_m, region_m, term_m, timeperiod_m,source_m,exp_m,path))
     proc1.start()

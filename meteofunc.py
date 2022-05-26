@@ -4,9 +4,8 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
 
-DATA = ""
-# DATA = pd.read_csv('../combine_est_t2m.csv', sep=';')
-
+DATA = pd.DataFrame()
+# DATA = pd.read_csv("combine_est_t2m.csv", sep=';')
 def set_data(path):
     global DATA
     DATA = pd.read_csv(path, sep=';')
@@ -30,7 +29,6 @@ def base_data():
     return fig
 
 def create_data():
-    
     ###############################field#####################################
     field_m = sort_field(DATA,"field")
     ###############################stat######################################
@@ -67,11 +65,9 @@ def read_data(field,model,exp,basePeriod,timeperiod,term,region,stat,source):
     lead_time_name = []
     lt = []
     param_name = []
-    
     for i in DATA.columns:
         try:
             x = int(i)
-
             lead_time_name.append(i)
             lt.append(i)
         except ValueError:
@@ -105,5 +101,4 @@ def read_data(field,model,exp,basePeriod,timeperiod,term,region,stat,source):
     fig = go.Figure()
     for i in range (len(data1)):
         fig.add_trace(go.Scatter(x=np.arange(0, len(data1[i])), y = data1[i],name=name1[i]))
-    fig.write_image("img.png")
     return fig

@@ -90,14 +90,14 @@ def set_file_name(file_id):
 def set_stat(n_clicks):
     ret_str = ""
     if n_clicks>0:
-        meteofunc.set_data(file_name)
-        main.main()
+        # meteofunc.set_data(file_name)
+        main.main(file_name)
         ret_str = "Status: started"
     return f'{ret_str}'
 
 
 def apps():
-    app1.run_server(debug=False, host = "127.0.0.2",port="8050")
+    app1.run_server(debug=False, host = "0.0.0.0",port="8050")
    
 if __name__ == '__main__':
     proc = Process(target=apps, name='Test')
