@@ -148,16 +148,17 @@ def set_timeperiod(timeperiod_id):
 )
 
 def bb(n_clicks):
-    print(stat)
-    print(field)
-    print(model)
-    print(region)
-    print(term)
-    print(timeperiod)
-    print(source)
-    print(exp)
+
 
     if (field != None) and (timeperiod != None) and (model != None) and (term != None) and (region != None) and (stat!=None) and (source!=None) and (exp!=None):
+        print(stat)
+        print(field)
+        print(model)
+        print(region)
+        print(term)
+        print(timeperiod)
+        print(source)
+        print(exp)
         fig = meteofunc_new.read_data(field,model,exp,basePeriod,timeperiod,term,region,stat,source)
     else:
         fig = meteofunc_new.base_data()
